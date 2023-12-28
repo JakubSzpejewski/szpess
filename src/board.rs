@@ -1,4 +1,4 @@
-use crate::piece::{PieceColor, Piece, PieceType, get_piece_char};
+use crate::{piece::Piece, piece::PieceColor, piece::PieceType, position::Position};
 
 pub struct Board {
     board: [[Option<Piece>; 8]; 8],
@@ -6,53 +6,29 @@ pub struct Board {
 
 impl Default for Board {
     fn default() -> Self {
-        let empty = [
-            [
-                Some((PieceType::Rook, PieceColor::Black)),
-                Some((PieceType::Knight, PieceColor::Black)),
-                Some((PieceType::Bishop, PieceColor::Black)),
-                Some((PieceType::King, PieceColor::Black)),
-                Some((PieceType::Queen, PieceColor::Black)),
-                Some((PieceType::Bishop, PieceColor::Black)),
-                Some((PieceType::Knight, PieceColor::Black)),
-                Some((PieceType::Rook, PieceColor::Black)),
-            ],
-            [
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-                Some((PieceType::Pawn, PieceColor::Black)),
-            ],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-                Some((PieceType::Pawn, PieceColor::White)),
-            ],
-            [
-                Some((PieceType::Rook, PieceColor::White)),
-                Some((PieceType::Knight, PieceColor::White)),
-                Some((PieceType::Bishop, PieceColor::White)),
-                Some((PieceType::King, PieceColor::White)),
-                Some((PieceType::Queen, PieceColor::White)),
-                Some((PieceType::Bishop, PieceColor::White)),
-                Some((PieceType::Knight, PieceColor::White)),
-                Some((PieceType::Rook, PieceColor::White)),
-            ],
-        ];
-        Board { board: empty }
+        let mut a = Board {
+            board: std::array::from_fn(|_| std::array::from_fn(|_| None)),
+        };
+        a.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::White,
+            Position::new('a', '1'),
+        ));
+        a
+    }
+}
+
+impl Board {
+    pub fn get_piece_by_position(&self, pos: Position) -> &Option<Piece> {
+        let (file, rank) = pos.get_index_values();
+        &self.board[file][rank]
+    }
+
+    fn add_piece(&mut self, piece: Piece) -> () {
+        let (file, rank) = piece.pos.get_index_values();
+
+        self.board[file][rank].take();
+        self.board[rank][file] = Some(piece);
     }
 }
 
@@ -60,10 +36,66 @@ impl std::fmt::Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for row in &self.board {
             for piece in row {
-                write!(f, "{}", get_piece_char(piece));
+                let piece_char = match piece {
+                    Some(v) => v.get_char(),
+                    None => ' ',
+                };
+                write!(f, "{}", piece_char);
             }
             write!(f, "\n");
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_adds_piece_to_a_board() {
+        let mut board = create_empty_board();
+        board.add_piece(Piece::new(
+            PieceType::Queen,
+            PieceColor::Black,
+            Position::new('a', '1'),
+        ));
+
+        assert!(match board.board[0][0] {
+            Some(_) => true,
+            None => false,
+        });
+    }
+
+    #[test]
+    fn it_returns_a_piece_by_position() {
+        let mut board = create_empty_board();
+        board.board[0][0] = Some(Piece::new(PieceType::Queen, PieceColor::Black, Position::new('a', '1')));
+
+        let piece = board.get_piece_by_position(Position('a', '1'));
+
+        assert!(match piece {
+            Some(_) => true,
+            None => false
+        });
+    }
+
+    #[test]
+    fn it_returns_a_piece_by_position_from_default_board() {
+        let board = Board::default();
+
+        let piece = board.get_piece_by_position(Position('a', '1')).as_ref().unwrap();
+
+        assert!(match piece.r#type {
+            PieceType::Rook => true,
+            _ => false
+        })
+
+    }
+
+    fn create_empty_board() -> Board {
+        Board {
+            board: std::array::from_fn(|_| std::array::from_fn(|_| None)),
+        }
     }
 }

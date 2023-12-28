@@ -1,3 +1,5 @@
+use crate::position::Position;
+
 pub enum PieceType {
     King,
     Queen,
@@ -11,25 +13,35 @@ pub enum PieceColor {
     Black,
 }
 
-pub type Piece = (PieceType, PieceColor);
+pub struct Piece {
+    pub r#type: PieceType,
+    pub color: PieceColor,
+    pub pos: Position,
+}
 
+impl Piece {
+    pub fn new(r#type: PieceType, color: PieceColor, pos: Position) -> Self {
+        Piece { r#type, color, pos }
+    }
 
-
-
-pub fn get_piece_char(piece: &Option<Piece>) -> char {
-    match piece {
-        Some((PieceType::King, PieceColor::White)) => '♔',
-        Some((PieceType::King, PieceColor::Black)) => '♚',
-        Some((PieceType::Queen, PieceColor::White)) => '♕',
-        Some((PieceType::Queen, PieceColor::Black)) => '♛',
-        Some((PieceType::Rook, PieceColor::White)) => '♖',
-        Some((PieceType::Rook, PieceColor::Black)) => '♜',
-        Some((PieceType::Bishop, PieceColor::White)) => '♗',
-        Some((PieceType::Bishop, PieceColor::Black)) => '♝',
-        Some((PieceType::Knight, PieceColor::White)) => '♘',
-        Some((PieceType::Knight, PieceColor::Black)) => '♞',
-        Some((PieceType::Pawn, PieceColor::White)) => '♙',
-        Some((PieceType::Pawn, PieceColor::Black)) => '♟',
-        None => ' ',
+    pub fn get_char(&self) -> char {
+        match self.color {
+            PieceColor::White => match self.r#type {
+                PieceType::King => '♔',
+                PieceType::Queen => '♕',
+                PieceType::Rook => '♖',
+                PieceType::Bishop => '♗',
+                PieceType::Knight => '♘',
+                PieceType::Pawn => '♙',
+            },
+            PieceColor::Black => match self.r#type {
+                PieceType::King => '♚',
+                PieceType::Queen => '♛',
+                PieceType::Rook => '♜',
+                PieceType::Bishop => '♝',
+                PieceType::Knight => '♞',
+                PieceType::Pawn => '♟',
+            },
+        }
     }
 }
