@@ -127,6 +127,10 @@ impl Board {
         piece.pos = to;
         self.board[to_file][to_rank] = Some(piece);
     }
+
+    pub fn get_flat_pieces(&self) -> &[Piece] {
+        todo!()
+    }
 }
 
 impl std::fmt::Display for Board {
@@ -216,6 +220,16 @@ mod tests {
             Some(_) => true,
             None => false,
         })
+    }
+
+    #[test]
+    fn it_gets_pieces() {
+        let mut board = create_empty_board();
+        board.add_piece(Piece::new(PieceType::King, PieceColor::Black, Position('e', '8')));
+        board.add_piece(Piece::new(PieceType::Bishop, PieceColor::White, Position('c', '1')));
+
+        let pieces = board.get_flat_pieces();
+        assert_eq!(pieces.len(), 2)
     }
 
     fn create_empty_board() -> Board {

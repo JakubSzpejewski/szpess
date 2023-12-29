@@ -1,0 +1,8 @@
+name: CI
+run-name: ${{ github.actor }} pushed to repo
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo test

@@ -45,3 +45,14 @@ impl Piece {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_creates_a_piece_and_returns_char() {
+        let piece = Piece::new(PieceType::King, PieceColor::Black, Position('e', '8'));
+        assert_eq!(piece.get_char(), '♚')
+    }
+}
