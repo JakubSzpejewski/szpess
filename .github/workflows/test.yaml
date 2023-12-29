@@ -5,7 +5,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: | 
-        cd ..
-        cargo check
-        cargo test
+      - name: Tests  
+        run: | 
+          cd ..
+          cargo check
+          cargo test
