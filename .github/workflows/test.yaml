@@ -5,8 +5,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Tests  
+      - uses: actions/checkout@v2
+
+      - name: Tests and lint  
         run: | 
-          cd ..
+          cd szpess
+          cargo clippy -- -D -warnings
           cargo check
           cargo test
