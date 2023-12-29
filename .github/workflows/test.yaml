@@ -1,8 +1,11 @@
 name: CI
-run-name: ${{ github.actor }} pushed to repo
+run-name: ${{ github.actor }} pushed to the repository
 on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: cargo test
+      - run: | 
+      cd ..
+      cargo check
+      cargo test
