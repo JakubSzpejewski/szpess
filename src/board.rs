@@ -128,8 +128,17 @@ impl Board {
         self.board[to_file][to_rank] = Some(piece);
     }
 
-    pub fn get_flat_pieces(&self) -> &[Piece] {
-        todo!()
+    pub fn get_flat_pieces(&self) -> Vec<&Piece> {
+        let mut ret: Vec<&Piece> = Vec::new();
+        for file in &self.board {
+            for piece in file {
+                match piece {
+                    Some(v) => ret.push(v),
+                    _ => (),
+                }
+            }
+        }
+        ret
     }
 }
 
