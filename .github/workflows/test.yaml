@@ -12,5 +12,6 @@ jobs:
           cargo clippy -- -D -warnings
 
       - name: Test
+        run: |
           cargo check
           cargo test
