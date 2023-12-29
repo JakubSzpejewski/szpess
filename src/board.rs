@@ -30,6 +30,16 @@ impl Board {
         self.board[file][rank].take();
         self.board[rank][file] = Some(piece);
     }
+
+    fn move_piece_from_to(&mut self, from: Position, to: Position) {
+        let (from_file, from_rank) = from.get_index_values();
+        let (to_file, to_rank) = to.get_index_values();
+
+        let piece = self.board[from_file][from_rank].take();
+        let mut piece = piece.unwrap();
+        piece.pos = to;
+        self.board[to_file][to_rank] = Some(piece);
+    }
 }
 
 impl std::fmt::Display for Board {
@@ -70,13 +80,17 @@ mod tests {
     #[test]
     fn it_returns_a_piece_by_position() {
         let mut board = create_empty_board();
-        board.board[0][0] = Some(Piece::new(PieceType::Queen, PieceColor::Black, Position::new('a', '1')));
+        board.board[0][0] = Some(Piece::new(
+            PieceType::Queen,
+            PieceColor::Black,
+            Position::new('a', '1'),
+        ));
 
         let piece = board.get_piece_by_position(Position('a', '1'));
 
         assert!(match piece {
             Some(_) => true,
-            None => false
+            None => false,
         });
     }
 
@@ -84,13 +98,34 @@ mod tests {
     fn it_returns_a_piece_by_position_from_default_board() {
         let board = Board::default();
 
-        let piece = board.get_piece_by_position(Position('a', '1')).as_ref().unwrap();
+        let piece = board
+            .get_piece_by_position(Position('a', '1'))
+            .as_ref()
+            .unwrap();
 
         assert!(match piece.r#type {
             PieceType::Rook => true,
-            _ => false
+            _ => false,
         })
+    }
 
+    #[test]
+    fn it_moves_a_piece() {
+        let mut board = Board::default();
+
+        board.move_piece_from_to(Position('a', '1'), Position('b', '1'));
+
+        let old_square = board.get_piece_by_position(Position('a', '1'));
+        assert!(match old_square {
+            Some(_) => false,
+            None => true,
+        });
+
+        let new_square = board.get_piece_by_position(Position('b', '1'));
+        assert!(match new_square {
+            Some(_) => true,
+            None => false
+        })
     }
 
     fn create_empty_board() -> Board {
