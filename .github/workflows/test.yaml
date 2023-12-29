@@ -6,6 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: | 
-      cd ..
-      cargo check
-      cargo test
+        cd ..
+        cargo check
+        cargo test
