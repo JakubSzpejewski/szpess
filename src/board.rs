@@ -6,15 +6,102 @@ pub struct Board {
 
 impl Default for Board {
     fn default() -> Self {
-        let mut a = Board {
+        let mut board = Board {
             board: std::array::from_fn(|_| std::array::from_fn(|_| None)),
         };
-        a.add_piece(Piece::new(
+        board.add_piece(Piece::new(
             PieceType::Rook,
             PieceColor::White,
             Position::new('a', '1'),
         ));
-        a
+        board.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::White,
+            Position::new('b', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::White,
+            Position::new('c', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Queen,
+            PieceColor::White,
+            Position::new('d', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::King,
+            PieceColor::White,
+            Position::new('e', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::White,
+            Position::new('f', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::White,
+            Position::new('g', '1'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::White,
+            Position::new('h', '1'),
+        ));
+        for file in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] {
+            board.add_piece(Piece::new(
+                PieceType::Pawn,
+                PieceColor::White,
+                Position::new(file, '2'),
+            ));
+            board.add_piece(Piece::new(
+                PieceType::Pawn,
+                PieceColor::Black,
+                Position::new(file, '7'),
+            ));
+        }
+        board.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::Black,
+            Position::new('a', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::Black,
+            Position::new('b', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::Black,
+            Position::new('c', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Queen,
+            PieceColor::Black,
+            Position::new('d', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::King,
+            PieceColor::Black,
+            Position::new('e', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::Black,
+            Position::new('f', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::Black,
+            Position::new('g', '8'),
+        ));
+        board.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::Black,
+            Position::new('h', '8'),
+        ));
+        board
     }
 }
 
@@ -28,7 +115,7 @@ impl Board {
         let (file, rank) = piece.pos.get_index_values();
 
         self.board[file][rank].take();
-        self.board[rank][file] = Some(piece);
+        self.board[file][rank] = Some(piece);
     }
 
     fn move_piece_from_to(&mut self, from: Position, to: Position) {
@@ -44,8 +131,11 @@ impl Board {
 
 impl std::fmt::Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for row in &self.board {
-            for piece in row {
+        // because we store board as [file][rank] ([column][row]) we can't simply iterate over board, because we can't return to previous lines
+        // starting from the last to show white at bottom
+        for column in (0..8).rev() {
+            for row in 0..8 {
+                let piece = &self.board[row][column];
                 let piece_char = match piece {
                     Some(v) => v.get_char(),
                     None => ' ',
@@ -99,7 +189,7 @@ mod tests {
         let board = Board::default();
 
         let piece = board
-            .get_piece_by_position(Position('a', '1'))
+            .get_piece_by_position(Position('h', '1'))
             .as_ref()
             .unwrap();
 
@@ -124,7 +214,7 @@ mod tests {
         let new_square = board.get_piece_by_position(Position('b', '1'));
         assert!(match new_square {
             Some(_) => true,
-            None => false
+            None => false,
         })
     }
 
