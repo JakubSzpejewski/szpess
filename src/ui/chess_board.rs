@@ -5,6 +5,10 @@
 //     Application, Command, Element, Theme,
 // };
 
+// struct ChessBoardFlags {
+//     board: Board,
+// }
+
 // pub struct ChessBoard {
 //     board: Board,
 // }
@@ -12,13 +16,13 @@
 // impl Application for ChessBoard {
 //     type Message = ();
 //     type Executor = executor::Default;
-//     type Flags = ();
+//     type Flags = ChessBoardFlags;
 //     type Theme = Theme;
     
-//     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+//     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
 //         (
 //             ChessBoard {
-//                 board: Board::default(),
+//                 board: flags.board,
 //             },
 //             Command::none(),
 //         )

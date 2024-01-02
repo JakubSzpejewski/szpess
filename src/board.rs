@@ -1,7 +1,8 @@
 use crate::{piece::Piece, piece::PieceColor, piece::PieceType, position::Position};
 
+type BoardType = [[Option<Piece>; 8]; 8];
 pub struct Board {
-    board: [[Option<Piece>; 8]; 8],
+    board: BoardType,
 }
 
 impl Default for Board {
@@ -9,118 +10,27 @@ impl Default for Board {
         let mut board = Board {
             board: std::array::from_fn(|_| std::array::from_fn(|_| None)),
         };
-        board.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::White,
-            Position::new('a', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::White,
-            Position::new('b', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::White,
-            Position::new('c', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Queen,
-            PieceColor::White,
-            Position::new('d', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::King,
-            PieceColor::White,
-            Position::new('e', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::White,
-            Position::new('f', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::White,
-            Position::new('g', '1'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::White,
-            Position::new('h', '1'),
-        ));
-        for file in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] {
-            board.add_piece(Piece::new(
-                PieceType::Pawn,
-                PieceColor::White,
-                Position::new(file, '2'),
-            ));
-            board.add_piece(Piece::new(
-                PieceType::Pawn,
-                PieceColor::Black,
-                Position::new(file, '7'),
-            ));
-        }
-        board.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::Black,
-            Position::new('a', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::Black,
-            Position::new('b', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::Black,
-            Position::new('c', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Queen,
-            PieceColor::Black,
-            Position::new('d', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::King,
-            PieceColor::Black,
-            Position::new('e', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::Black,
-            Position::new('f', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::Black,
-            Position::new('g', '8'),
-        ));
-        board.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::Black,
-            Position::new('h', '8'),
-        ));
+        board.add_default_pieces();
         board
     }
 }
 
 impl Board {
     pub fn get_piece_by_position(&self, pos: Position) -> &Option<Piece> {
-        let (file, rank) = pos.get_index_values();
+        let (file, rank) = pos.get_indices();
         &self.board[file][rank]
     }
 
-    fn add_piece(&mut self, piece: Piece) -> () {
-        let (file, rank) = piece.pos.get_index_values();
+    fn add_piece(&mut self, piece: Piece) {
+        let (file, rank) = piece.pos.get_indices();
 
         self.board[file][rank].take();
         self.board[file][rank] = Some(piece);
     }
 
     fn move_piece_from_to(&mut self, from: Position, to: Position) {
-        let (from_file, from_rank) = from.get_index_values();
-        let (to_file, to_rank) = to.get_index_values();
+        let (from_file, from_rank) = from.get_indices();
+        let (to_file, to_rank) = to.get_indices();
 
         let piece = self.board[from_file][from_rank].take();
         let mut piece = piece.unwrap();
@@ -140,6 +50,102 @@ impl Board {
         }
         ret
     }
+
+    fn add_default_pieces(&mut self)  { 
+        self.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::White,
+            Position::new('a', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::White,
+            Position::new('b', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::White,
+            Position::new('c', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Queen,
+            PieceColor::White,
+            Position::new('d', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::King,
+            PieceColor::White,
+            Position::new('e', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::White,
+            Position::new('f', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::White,
+            Position::new('g', '1'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::White,
+            Position::new('h', '1'),
+        ));
+        for file in 'a'..='h' {
+            self.add_piece(Piece::new(
+                PieceType::Pawn,
+                PieceColor::White,
+                Position::new(file, '2'),
+            ));
+            self.add_piece(Piece::new(
+                PieceType::Pawn,
+                PieceColor::Black,
+                Position::new(file, '7'),
+            ));
+        }
+        self.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::Black,
+            Position::new('a', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::Black,
+            Position::new('b', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::Black,
+            Position::new('c', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Queen,
+            PieceColor::Black,
+            Position::new('d', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::King,
+            PieceColor::Black,
+            Position::new('e', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Bishop,
+            PieceColor::Black,
+            Position::new('f', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Knight,
+            PieceColor::Black,
+            Position::new('g', '8'),
+        ));
+        self.add_piece(Piece::new(
+            PieceType::Rook,
+            PieceColor::Black,
+            Position::new('h', '8'),
+        ));
+    }
+
 }
 
 impl std::fmt::Display for Board {

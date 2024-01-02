@@ -1,7 +1,7 @@
-mod board;
-use iced::{Settings, Application};
 
 use crate::board::Board;
+
+mod board;
 
 mod piece;
 
