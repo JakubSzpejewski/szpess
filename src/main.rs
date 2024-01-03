@@ -1,5 +1,5 @@
 
-use crate::board::Board;
+use crate::{board::Board};
 
 mod board;
 
@@ -12,6 +12,5 @@ mod position;
 
 fn main() {
     let brd = Board::default();
-
     print!("{}", brd);
 }

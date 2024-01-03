@@ -1,4 +1,6 @@
-use crate::{piece::Piece, piece::PieceColor, piece::PieceType, position::Position};
+use std::fmt::Error;
+
+use crate::{piece::Piece, piece::PieceColor, position::Position};
 
 type BoardType = [[Option<Piece>; 8]; 8];
 pub struct Board {
@@ -22,20 +24,25 @@ impl Board {
     }
 
     fn add_piece(&mut self, piece: Piece) {
-        let (file, rank) = piece.pos.get_indices();
+        let (file, rank) = piece.get_position().get_indices();
 
         self.board[file][rank].take();
         self.board[file][rank] = Some(piece);
     }
 
-    fn move_piece_from_to(&mut self, from: Position, to: Position) {
+    fn move_piece_from_to(&mut self, from: Position, to: Position) -> Result<(), ()> {
         let (from_file, from_rank) = from.get_indices();
         let (to_file, to_rank) = to.get_indices();
 
         let piece = self.board[from_file][from_rank].take();
-        let mut piece = piece.unwrap();
-        piece.pos = to;
-        self.board[to_file][to_rank] = Some(piece);
+        if matches!(piece, Some(_)) {
+            let new_piece = piece.unwrap().copy_with_new_position(to);
+            self.board[to_file][to_rank] = Some(new_piece);
+
+            Ok(())
+        } else {
+            Err(())
+        }
     }
 
     pub fn get_flat_pieces(&self) -> Vec<&Piece> {
@@ -51,101 +58,28 @@ impl Board {
         ret
     }
 
-    fn add_default_pieces(&mut self)  { 
-        self.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::White,
-            Position::new('a', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::White,
-            Position::new('b', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::White,
-            Position::new('c', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Queen,
-            PieceColor::White,
-            Position::new('d', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::King,
-            PieceColor::White,
-            Position::new('e', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::White,
-            Position::new('f', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::White,
-            Position::new('g', '1'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::White,
-            Position::new('h', '1'),
-        ));
+    fn add_default_pieces(&mut self) {
+        self.add_piece(Piece::Rook(PieceColor::White, Position::new('a', '1')));
+        self.add_piece(Piece::Knight(PieceColor::White, Position::new('b', '1')));
+        self.add_piece(Piece::Bishop(PieceColor::White, Position::new('c', '1')));
+        self.add_piece(Piece::Queen(PieceColor::White, Position::new('d', '1')));
+        self.add_piece(Piece::King(PieceColor::White, Position::new('e', '1')));
+        self.add_piece(Piece::Bishop(PieceColor::White, Position::new('f', '1')));
+        self.add_piece(Piece::Knight(PieceColor::White, Position::new('g', '1')));
+        self.add_piece(Piece::Rook(PieceColor::White, Position::new('h', '1')));
         for file in 'a'..='h' {
-            self.add_piece(Piece::new(
-                PieceType::Pawn,
-                PieceColor::White,
-                Position::new(file, '2'),
-            ));
-            self.add_piece(Piece::new(
-                PieceType::Pawn,
-                PieceColor::Black,
-                Position::new(file, '7'),
-            ));
+            self.add_piece(Piece::Pawn(PieceColor::White, Position::new(file, '2')));
+            self.add_piece(Piece::Pawn(PieceColor::Black, Position::new(file, '7')));
         }
-        self.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::Black,
-            Position::new('a', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::Black,
-            Position::new('b', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::Black,
-            Position::new('c', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Queen,
-            PieceColor::Black,
-            Position::new('d', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::King,
-            PieceColor::Black,
-            Position::new('e', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Bishop,
-            PieceColor::Black,
-            Position::new('f', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Knight,
-            PieceColor::Black,
-            Position::new('g', '8'),
-        ));
-        self.add_piece(Piece::new(
-            PieceType::Rook,
-            PieceColor::Black,
-            Position::new('h', '8'),
-        ));
+        self.add_piece(Piece::Rook(PieceColor::Black, Position::new('a', '8')));
+        self.add_piece(Piece::Knight(PieceColor::Black, Position::new('b', '8')));
+        self.add_piece(Piece::Bishop(PieceColor::Black, Position::new('c', '8')));
+        self.add_piece(Piece::Queen(PieceColor::Black, Position::new('d', '8')));
+        self.add_piece(Piece::King(PieceColor::Black, Position::new('e', '8')));
+        self.add_piece(Piece::Bishop(PieceColor::Black, Position::new('f', '8')));
+        self.add_piece(Piece::Knight(PieceColor::Black, Position::new('g', '8')));
+        self.add_piece(Piece::Rook(PieceColor::Black, Position::new('h', '8')));
     }
-
 }
 
 impl std::fmt::Display for Board {
@@ -174,11 +108,7 @@ mod tests {
     #[test]
     fn it_adds_piece_to_a_board() {
         let mut board = create_empty_board();
-        board.add_piece(Piece::new(
-            PieceType::Queen,
-            PieceColor::Black,
-            Position::new('a', '1'),
-        ));
+        board.add_piece(Piece::Queen(PieceColor::Black, Position::new('a', '1')));
 
         assert!(match board.board[0][0] {
             Some(_) => true,
@@ -189,11 +119,7 @@ mod tests {
     #[test]
     fn it_returns_a_piece_by_position() {
         let mut board = create_empty_board();
-        board.board[0][0] = Some(Piece::new(
-            PieceType::Queen,
-            PieceColor::Black,
-            Position::new('a', '1'),
-        ));
+        board.board[0][0] = Some(Piece::Queen(PieceColor::Black, Position::new('a', '1')));
 
         let piece = board.get_piece_by_position(Position('a', '1'));
 
@@ -212,36 +138,28 @@ mod tests {
             .as_ref()
             .unwrap();
 
-        assert!(match piece.r#type {
-            PieceType::Rook => true,
-            _ => false,
-        })
+        assert!(matches!(piece, Piece::Rook(_, _)))
     }
 
     #[test]
     fn it_moves_a_piece() {
         let mut board = Board::default();
 
-        board.move_piece_from_to(Position('a', '1'), Position('b', '1'));
+        let res = board.move_piece_from_to(Position('a', '1'), Position('b', '1'));
+        assert!(matches!(res, Ok(_)));
 
         let old_square = board.get_piece_by_position(Position('a', '1'));
-        assert!(match old_square {
-            Some(_) => false,
-            None => true,
-        });
+        assert!(matches!(old_square, None));
 
         let new_square = board.get_piece_by_position(Position('b', '1'));
-        assert!(match new_square {
-            Some(_) => true,
-            None => false,
-        })
+        assert!(matches!(new_square, Some(_)))
     }
 
     #[test]
     fn it_gets_pieces() {
         let mut board = create_empty_board();
-        board.add_piece(Piece::new(PieceType::King, PieceColor::Black, Position('e', '8')));
-        board.add_piece(Piece::new(PieceType::Bishop, PieceColor::White, Position('c', '1')));
+        board.add_piece(Piece::King(PieceColor::Black, Position('e', '8')));
+        board.add_piece(Piece::Bishop(PieceColor::White, Position('c', '1')));
 
         let pieces = board.get_flat_pieces();
         assert_eq!(pieces.len(), 2)

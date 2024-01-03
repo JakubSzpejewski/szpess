@@ -48,7 +48,7 @@ impl PartialEq for Position {
     }
 }
 
-fn get_position_from_indices(indices: (usize, usize)) -> Position {
+pub fn get_position_from_indices(indices: (usize, usize)) -> Position {
     let file_index = indices.0;
     let rank_index = indices.1;
 
