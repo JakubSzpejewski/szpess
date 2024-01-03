@@ -3,6 +3,7 @@
 /// Panics on other values or on parse fail
 ///
 pub struct Position(pub char, pub char);
+pub struct BoardIndex(pub usize, pub usize);
 
 impl Position {
     fn validate(file: char, rank: char) {
@@ -18,6 +19,31 @@ impl Position {
     pub fn new(file: char, rank: char) -> Position {
         Position::validate(file, rank);
         Position(file, rank)
+    }
+
+    pub fn new_from_indices(indices: BoardIndex) -> Position {
+        let file_index = indices.0;
+        let rank_index = indices.1;
+    
+        assert!(matches!(file_index, 0..=7), "File index needs to be [0-7]");
+        assert!(matches!(rank_index, 0..=7), "Rank index needs to be [0-7]");
+    
+        // Safely unwrap, because we're sure rank is a digit
+        // Add 1 because of 0 array indexing and 1 board indexing
+        let rank: char = char::from_digit((rank_index + 1) as u32, 10).unwrap();
+        let file: char = match file_index {
+            0 => 'a',
+            1 => 'b',
+            2 => 'c',
+            3 => 'd',
+            4 => 'e',
+            5 => 'f',
+            6 => 'g',
+            7 => 'h',
+            _ => panic!("Should never be seen"),
+        };
+    
+        Position::new(file, rank)
     }
 
     pub fn get_indices(&self) -> (usize, usize) {
@@ -48,36 +74,9 @@ impl PartialEq for Position {
     }
 }
 
-pub fn get_position_from_indices(indices: (usize, usize)) -> Position {
-    let file_index = indices.0;
-    let rank_index = indices.1;
-
-    assert!(matches!(file_index, 0..=7), "File index needs to be [0-7]");
-    assert!(matches!(rank_index, 0..=7), "Rank index needs to be [0-7]");
-
-    // Safely unwrap, because we're sure rank is a digit
-    // Add 1 because of 0 array indexing and 1 board indexing
-    let rank: char = char::from_digit((rank_index + 1) as u32, 10).unwrap();
-    let file: char = match file_index {
-        0 => 'a',
-        1 => 'b',
-        2 => 'c',
-        3 => 'd',
-        4 => 'e',
-        5 => 'f',
-        6 => 'g',
-        7 => 'h',
-        _ => panic!("Should never be seen"),
-    };
-
-    Position::new(file, rank)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::position::get_position_from_indices;
-
-    use super::Position;
+    use super::{Position, BoardIndex};
 
     #[test]
     fn it_creates_position() {
@@ -111,24 +110,24 @@ mod tests {
 
     #[test]
     fn it_returns_correct_position_for_indices() {
-        let i1 = (0, 0);
-        let i2 = (4, 3);
-        let i3 = (7, 7);
+        let i1 = BoardIndex(0, 0);
+        let i2 = BoardIndex(4, 3);
+        let i3 = BoardIndex(7, 7);
 
-        assert!(get_position_from_indices(i1) == Position::new('a', '1'));
-        assert!(get_position_from_indices(i2) == Position::new('e', '4'));
-        assert!(get_position_from_indices(i3) == Position::new('h', '8'));
+        assert!(Position::new_from_indices(i1) == Position::new('a', '1'));
+        assert!(Position::new_from_indices(i2) == Position::new('e', '4'));
+        assert!(Position::new_from_indices(i3) == Position::new('h', '8'));
     }
 
     #[test]
     #[should_panic(expected = "Rank index needs to be [0-7]")]
     fn it_panics_on_incorrect_rank_index() {
-        get_position_from_indices((2, 20));
+        Position::new_from_indices(BoardIndex(2, 20));
     }
 
     #[test]
     #[should_panic(expected = "File index needs to be [0-7]")]
     fn it_panics_on_incorrect_position_file_index() {
-        get_position_from_indices((9, 2));
+        Position::new_from_indices(BoardIndex(9, 2));
     }
 }
