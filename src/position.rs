@@ -13,7 +13,7 @@ impl Position {
 
         let rank: usize = rank.to_digit(10).unwrap().try_into().unwrap();
 
-        assert!(rank >= 1 && rank <= 8, "Rank needs to be [1-8]");
+        assert!((1..=8).contains(&rank), "Rank needs to be [1-8]");
     }
 
     pub fn new(file: char, rank: char) -> Position {
@@ -46,7 +46,7 @@ impl Position {
         Position::new(file, rank)
     }
 
-    pub fn get_indices(&self) -> (usize, usize) {
+    pub fn get_indices(&self) -> BoardIndex {
         let file = self.0;
         let rank = self.1;
 
@@ -64,11 +64,17 @@ impl Position {
         };
 
         // Rank is just row + 1 because of 0 indexing
-        (file_index, rank_index - 1)
+        BoardIndex(file_index, rank_index - 1)
     }
 }
 
 impl PartialEq for Position {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0 && self.1 == other.1
+    }
+}
+
+impl PartialEq for BoardIndex {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0 && self.1 == other.1
     }
@@ -103,9 +109,9 @@ mod tests {
         let pos2 = Position::new('e', '4');
         let pos3 = Position::new('h', '8');
 
-        assert_eq!(pos1.get_indices(), (0, 0));
-        assert_eq!(pos2.get_indices(), (4, 3));
-        assert_eq!(pos3.get_indices(), (7, 7));
+        assert!(pos1.get_indices() == BoardIndex(0, 0));
+        assert!(pos2.get_indices() == BoardIndex(4, 3));
+        assert!(pos3.get_indices() == BoardIndex(7, 7));
     }
 
     #[test]

@@ -1,6 +1,4 @@
-use std::fmt::Error;
-
-use crate::{piece::Piece, piece::PieceColor, position::Position};
+use crate::{piece::Piece, piece::PieceColor, position::{Position, BoardIndex}};
 
 type BoardType = [[Option<Piece>; 8]; 8];
 pub struct Board {
@@ -19,23 +17,23 @@ impl Default for Board {
 
 impl Board {
     pub fn get_piece_by_position(&self, pos: Position) -> &Option<Piece> {
-        let (file, rank) = pos.get_indices();
+        let BoardIndex(file, rank) = pos.get_indices();
         &self.board[file][rank]
     }
 
     fn add_piece(&mut self, piece: Piece) {
-        let (file, rank) = piece.get_position().get_indices();
+        let BoardIndex(file, rank) = piece.get_position().get_indices();
 
         self.board[file][rank].take();
         self.board[file][rank] = Some(piece);
     }
 
     fn move_piece_from_to(&mut self, from: Position, to: Position) -> Result<(), ()> {
-        let (from_file, from_rank) = from.get_indices();
-        let (to_file, to_rank) = to.get_indices();
+        let BoardIndex(from_file, from_rank) = from.get_indices();
+        let BoardIndex(to_file, to_rank) = to.get_indices();
 
         let piece = self.board[from_file][from_rank].take();
-        if matches!(piece, Some(_)) {
+        if piece.is_some() {
             let new_piece = piece.unwrap().copy_with_new_position(to);
             self.board[to_file][to_rank] = Some(new_piece);
 
@@ -46,16 +44,8 @@ impl Board {
     }
 
     pub fn get_flat_pieces(&self) -> Vec<&Piece> {
-        let mut ret: Vec<&Piece> = Vec::new();
-        for file in &self.board {
-            for piece in file {
-                match piece {
-                    Some(v) => ret.push(v),
-                    _ => (),
-                }
-            }
-        }
-        ret
+        self.board.iter().flatten().filter_map(Option::as_ref).collect::<Vec<&Piece>>()
+        
     }
 
     fn add_default_pieces(&mut self) {
@@ -93,9 +83,9 @@ impl std::fmt::Display for Board {
                     Some(v) => v.get_char(),
                     None => ' ',
                 };
-                write!(f, "{}", piece_char);
+                write!(f, "{}", piece_char)?;
             }
-            write!(f, "\n");
+            writeln!(f)?;
         }
         Ok(())
     }
@@ -110,10 +100,7 @@ mod tests {
         let mut board = create_empty_board();
         board.add_piece(Piece::Queen(PieceColor::Black, Position::new('a', '1')));
 
-        assert!(match board.board[0][0] {
-            Some(_) => true,
-            None => false,
-        });
+        assert!(board.board[0][0].is_some());
     }
 
     #[test]
@@ -123,10 +110,7 @@ mod tests {
 
         let piece = board.get_piece_by_position(Position('a', '1'));
 
-        assert!(match piece {
-            Some(_) => true,
-            None => false,
-        });
+        assert!(piece.is_some());
     }
 
     #[test]
@@ -146,13 +130,13 @@ mod tests {
         let mut board = Board::default();
 
         let res = board.move_piece_from_to(Position('a', '1'), Position('b', '1'));
-        assert!(matches!(res, Ok(_)));
+        assert!(res.is_ok());
 
         let old_square = board.get_piece_by_position(Position('a', '1'));
-        assert!(matches!(old_square, None));
+        assert!(old_square.is_none());
 
         let new_square = board.get_piece_by_position(Position('b', '1'));
-        assert!(matches!(new_square, Some(_)))
+        assert!(new_square.is_some())
     }
 
     #[test]

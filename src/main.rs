@@ -1,5 +1,4 @@
-
-use crate::{board::Board};
+use crate::board::Board;
 
 mod board;
 

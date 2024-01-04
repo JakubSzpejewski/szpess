@@ -85,4 +85,7 @@ mod tests {
         let piece = Piece::King(PieceColor::Black, Position('e', '8'));
         assert_eq!(piece.get_char(), '♚')
     }
+
+    // #[test]
+    // fn 
 }
