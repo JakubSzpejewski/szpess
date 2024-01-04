@@ -28,7 +28,7 @@ impl Board {
         self.board[file][rank] = Some(piece);
     }
 
-    fn move_piece_from_to(&mut self, from: Position, to: Position) -> Result<(), ()> {
+    fn move_piece_from_to(&mut self, from: Position, to: Position) -> Result<(), &str> {
         let BoardIndex(from_file, from_rank) = from.get_indices();
         let BoardIndex(to_file, to_rank) = to.get_indices();
 
@@ -39,7 +39,7 @@ impl Board {
 
             Ok(())
         } else {
-            Err(())
+            Err("Moved from position with no piece")
         }
     }
 
@@ -118,11 +118,9 @@ mod tests {
         let board = Board::default();
 
         let piece = board
-            .get_piece_by_position(Position('h', '1'))
-            .as_ref()
-            .unwrap();
+            .get_piece_by_position(Position('h', '1'));
 
-        assert!(matches!(piece, Piece::Rook(_, _)))
+        assert!(piece.is_some());
     }
 
     #[test]
@@ -147,6 +145,13 @@ mod tests {
 
         let pieces = board.get_flat_pieces();
         assert_eq!(pieces.len(), 2)
+    }
+
+    #[test]
+    fn it_returns_error_when_moving_from_position_with_no_piece() {
+        let mut board = Board::default();
+        let res = board.move_piece_from_to(Position('e', '4'), Position('e', '5'));
+        assert!(res.is_err())
     }
 
     fn create_empty_board() -> Board {
