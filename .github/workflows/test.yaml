@@ -7,11 +7,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Cargo audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
       - name: Lint  
         run: | 
-          cargo clippy -- -D -warnings
+          cargo clippy -v -- -D -warnings
 
       - name: Test
         run: |
-          cargo check
-          cargo test
+          cargo test -v
