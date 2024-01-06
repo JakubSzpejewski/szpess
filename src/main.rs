@@ -7,6 +7,7 @@ mod piece;
 mod ui;
 
 mod position;
+mod castling_rights;
 
 
 fn main() {
